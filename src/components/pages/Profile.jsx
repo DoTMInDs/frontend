@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { auth } from '../../Config';
-import { Avatar, Button, Card } from 'flowbite-react';
 import { FiEdit3 } from "react-icons/fi";
 import EditProfileModal from '../common/EditProfileModal';
 import { toast } from 'react-toastify';
@@ -31,17 +30,17 @@ const Profile = () => {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Card className="max-w-md w-full text-center p-8">
+        <div className="max-w-md w-full text-center p-8">
           <h2 className="text-2xl font-bold mb-2">Profile</h2>
           <p className="text-gray-500">You are not logged in.</p>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <Card className="max-w-md w-full text-center p-8 shadow-lg">
+      <div className="max-w-md w-full text-center p-8 shadow-lg">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-green-700 dark:text-green-300 mb-2">Profile</h2>
           <FiEdit3
@@ -50,12 +49,10 @@ const Profile = () => {
           />
         </div>
         <div className="flex flex-col items-center mb-4">
-          <Avatar
-            img={user.photoURL || undefined}
+          <img
+            src={user.photoURL || undefined}
             alt="User avatar"
-            rounded
-            size="xl"
-            className="ring-2 ring-green-500 mb-2"
+            className="w-24 h-24 rounded-full object-cover ring-2 ring-green-500 mb-2"
           />
           <h2 className="text-2xl font-bold text-green-700 dark:text-green-300 mb-1">{user.displayName || 'No Name'}</h2>
           <p className="text-gray-700 dark:text-gray-200">{user.email}</p>
@@ -63,7 +60,7 @@ const Profile = () => {
         <div className="mt-4">
           <p className="text-gray-600 dark:text-gray-400">More profile features coming soon...</p>
         </div>
-      </Card>
+      </div>
       <EditProfileModal
         open={openModal}
         onClose={() => setOpenModal(false)}
