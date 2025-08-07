@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../../Config';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Signup = () => {
     const [error, setError] = useState(false);
@@ -142,7 +142,7 @@ const Signup = () => {
         
         <div className="flex justify-center items-center mt-2">
           <p className="text-sm text-gray-500">
-            Already have an account? <a href="/login" className="text-blue-500 hover:text-blue-700">Login</a>
+            Already have an account? <Link to="/login" className="text-blue-500 hover:text-blue-700">Login</Link>
           </p>
         </div>
       </form>

@@ -265,11 +265,11 @@ const Product = () => {
               <div className="relative">
                 <img
                   className="w-full h-48 object-cover"
-                  src={product.image_url || product.image || 'https://via.placeholder.com/400x200?text=Product+Image'}
+                  src={product.image_url || product.image || 'https://res.cloudinary.com/demo/image/upload/sample.jpg'}
                   alt={product.name}
                   onError={(e) => {
                     console.log('Image failed to load:', product.image_url || product.image);
-                    e.target.src = 'https://via.placeholder.com/400x200?text=Product+Image';
+                    e.target.src = 'https://res.cloudinary.com/demo/image/upload/sample.jpg';
                   }}
                 />
                 <button

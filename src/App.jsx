@@ -2,6 +2,7 @@ import React from 'react'
 import Header from './components/layout/Header.jsx'
 import Login from './components/auth/Login.jsx'
 import Signup from './components/auth/Signup.jsx'
+import Profile from './components/pages/Profile.jsx'
 import Home from './components/pages/Home.jsx'
 import Shop from './components/pages/Shop.jsx'
 import Product from './components/pages/Product.jsx'
@@ -26,6 +27,11 @@ const App = () => {
         } />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
       </Routes>
     </AuthProvider>
   )

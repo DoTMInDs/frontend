@@ -3,7 +3,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider } from '../../Config';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
     const [error, setError] = useState(false);
@@ -125,7 +125,7 @@ const Login = () => {
         
         <div className="flex justify-center items-center">
           <p className="text-sm text-gray-500">
-            Don't have an account? <a href="/signup" className="text-blue-500 hover:text-blue-700">Sign up</a>
+            Don't have an account? <Link to="/signup" className="text-blue-500 hover:text-blue-700">Sign up</Link>
           </p>
         </div>
       </form>

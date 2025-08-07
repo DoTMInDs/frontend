@@ -205,11 +205,11 @@ const Shop = () => {
         {products.map(product => (
           <div key={product.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col">
             <img 
-              src={product.image_url || product.image || 'https://via.placeholder.com/400x200?text=Product+Image'} 
+              src={product.image_url || product.image || 'https://res.cloudinary.com/demo/image/upload/sample.jpg'} 
               alt={product.name} 
               className="w-full h-40 object-cover"
               onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/400x200?text=Product+Image';
+                e.target.src = 'https://res.cloudinary.com/demo/image/upload/sample.jpg';
               }}
             />
             <div className="p-4 flex flex-col flex-grow">
