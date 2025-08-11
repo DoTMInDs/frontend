@@ -9,9 +9,12 @@ const Login = () => {
     const [error, setError] = useState(false);
     const [passwordVisibility, setPasswordVisibility] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false); // New state for Google loading
     const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setError(false);
     try {
       await signInWithPopup(auth, googleProvider);
       localStorage.setItem('loginSuccess', 'Login successful!');
@@ -19,8 +22,11 @@ const Login = () => {
     } catch (error) {
       setError('Google sign-in failed');
       console.error(error);
+    } finally {
+      setGoogleLoading(false);
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -34,13 +40,14 @@ const Login = () => {
       localStorage.setItem('loginSuccess', 'Login successful!');
       navigate("/");
     } catch (err) {
-      // Handle error (show error message)
       console.log(err);
       setError('Invalid email or password');
     }
     setLoading(false);
     e.target.reset();
   };
+
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] mt-6">
@@ -94,18 +101,19 @@ const Login = () => {
           </label>
         </div>
         
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+        <button
+          type="button"
+          disabled={googleLoading}
+          onClick={handleGoogleSignIn}
+          className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-white text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
         >
-          {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Logging in...
-            </>
+          {googleLoading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600" />
           ) : (
-            'Submit'
+            <>
+              <FcGoogle className="text-xl" />
+              Sign in with Google
+            </>
           )}
         </button>
         
@@ -117,10 +125,19 @@ const Login = () => {
         
         <button
           type="button"
+          disabled={loading}
           onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-white text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
         >
           <FcGoogle className="text-xl" /> Sign in with Google
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Logging in...
+            </>
+          ) : (
+            'Sign in with Google'
+          )}
         </button>
         
         <div className="flex justify-center items-center">
