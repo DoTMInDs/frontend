@@ -13,30 +13,41 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
   }, [isOpen, product]);
 
   const loadSellerInfo = async () => {
-    if (!product || !product.seller) {
-      // If no seller ID, try to use fallback information
-      setSellerInfo({
-        name: product.seller_name || product.created_by || 'Unknown Seller',
-        email: product.seller_email || 'No email available',
-        location: product.seller_location || product.location || 'Location not specified',
-        rating: product.seller_rating || 'No rating yet'
-      });
-      return;
-    }
+    if (!product) return;
     
     try {
       setLoading(true);
-      // Try to get seller information using the API service
-      const sellerData = await apiService.getUser(product.seller);
-      setSellerInfo(sellerData);
+      
+      // Try to get seller information using the API service if seller ID exists
+      if (product.seller) {
+        try {
+          const sellerData = await apiService.getUser(product.seller);
+          setSellerInfo(sellerData);
+          return;
+        } catch (error) {
+          console.error('Failed to load seller info from API:', error);
+        }
+      }
+      
+      // Fallback to product data or default values
+      setSellerInfo({
+        name: product.seller_name || product.created_by || product.seller_display_name || 'Unknown Seller',
+        email: product.seller_email || product.seller_contact_email || 'No email available',
+        phone: product.seller_phone || product.seller_contact_phone || null,
+        location: product.seller_location || product.seller_address || product.location || 'Location not specified',
+        rating: product.seller_rating || 'No rating yet',
+        bio: product.seller_bio || null
+      });
     } catch (error) {
       console.error('Failed to load seller info:', error);
-      // Set default seller info if API call fails
+      // Set default seller info if everything fails
       setSellerInfo({
-        name: product.seller_name || product.created_by || 'Unknown Seller',
-        email: product.seller_email || 'No email available',
-        location: product.seller_location || product.location || 'Location not specified',
-        rating: product.seller_rating || 'No rating yet'
+        name: 'Unknown Seller',
+        email: 'No email available',
+        phone: null,
+        location: 'Location not specified',
+        rating: 'No rating yet',
+        bio: null
       });
     } finally {
       setLoading(false);
@@ -108,20 +119,20 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                           {product.name}
                         </h3>
                         <div className="flex items-center space-x-3">
-                          <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                            ${parseFloat(product.price).toFixed(2)}
-                          </p>
-                          {product.original_price && product.original_price > product.price && (
-                            <p className="text-lg text-gray-500 line-through">
-                              ${parseFloat(product.original_price).toFixed(2)}
-                            </p>
-                          )}
+                                                     <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                             ₵{parseFloat(product.price).toFixed(2)}
+                           </p>
+                           {product.original_price && product.original_price > product.price && (
+                             <p className="text-lg text-gray-500 line-through">
+                               ₵{parseFloat(product.original_price).toFixed(2)}
+                             </p>
+                           )}
                         </div>
-                        {product.discount && (
-                          <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                            Save ${((product.original_price - product.price) || 0).toFixed(2)}!
-                          </p>
-                        )}
+                                                 {product.discount && (
+                           <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                             Save ₵{((product.original_price - product.price) || 0).toFixed(2)}!
+                           </p>
+                         )}
                       </div>
 
                       <div>
@@ -206,14 +217,29 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                               </div>
                             </div>
                             
-                            {sellerInfo.location && (
-                              <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                                </svg>
-                                <span className="text-sm">{sellerInfo.location}</span>
-                              </div>
-                            )}
+                                                         {sellerInfo.phone && (
+                               <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                   <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                 </svg>
+                                 <span className="text-sm">{sellerInfo.phone}</span>
+                               </div>
+                             )}
+                             {sellerInfo.location && (
+                               <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                                 </svg>
+                                 <span className="text-sm">{sellerInfo.location}</span>
+                               </div>
+                             )}
+                             {sellerInfo.bio && (
+                               <div className="mt-2">
+                                 <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                   {sellerInfo.bio}
+                                 </p>
+                               </div>
+                             )}
                             
                             {sellerInfo.rating && (
                               <div className="flex items-center space-x-2">
@@ -261,13 +287,15 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     onClick={() => {
                       if (sellerInfo && sellerInfo.email) {
                         window.open(`mailto:${sellerInfo.email}?subject=Inquiry about ${product.name}`, '_blank');
+                      } else if (sellerInfo && sellerInfo.phone) {
+                        window.open(`tel:${sellerInfo.phone}`, '_blank');
                       } else {
                         alert('Seller contact information not available');
                       }
                     }}
                     className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                   >
-                    Contact Seller
+                    {sellerInfo?.phone ? 'Call Seller' : 'Email Seller'}
                   </button>
                 </div>
               </Dialog.Panel>

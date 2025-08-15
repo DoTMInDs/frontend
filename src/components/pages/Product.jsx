@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import apiService from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const Product = () => {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ const Product = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingProductId, setDeletingProductId] = useState(null);
 
   // Load products from API on mount
   useEffect(() => {
@@ -88,12 +90,22 @@ const Product = () => {
   };
 
   const handleDeleteProduct = async (productId) => {
+    if (!window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+      return;
+    }
+    
     try {
+      setError(null);
+      setDeletingProductId(productId);
       await apiService.deleteProduct(productId);
       setProducts(prev => prev.filter(product => product.id !== productId));
+      toast.success('Product deleted successfully!');
     } catch (err) {
-      setError('Failed to delete product');
+      setError('Failed to delete product. Please try again.');
       console.error('Error deleting product:', err);
+      toast.error('Failed to delete product. Please try again.');
+    } finally {
+      setDeletingProductId(null);
     }
   };
 
@@ -173,7 +185,7 @@ const Product = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="price" className="block text-sm font-medium mb-1">Price ($)</label>
+                      <label htmlFor="price" className="block text-sm font-medium mb-1">Price (₵)</label>
                       <input
                         id="price"
                         name="price"
@@ -274,9 +286,18 @@ const Product = () => {
                 />
                 <button
                   onClick={() => handleDeleteProduct(product.id)}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
+                  disabled={deletingProductId === product.id}
+                  className={`absolute top-2 right-2 rounded-full w-8 h-8 flex items-center justify-center transition-colors ${
+                    deletingProductId === product.id
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-red-500 hover:bg-red-600'
+                  }`}
                 >
-                  ×
+                  {deletingProductId === product.id ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    '×'
+                  )}
                 </button>
               </div>
               <div className="p-4">
@@ -288,7 +309,7 @@ const Product = () => {
                 </p>
                 <div className="flex items-center justify-between mt-4">
                   <span className="text-2xl font-bold text-green-600 dark:text-green-300">
-                    ${product.price}
+                    ₵{product.price}
                   </span>
                 </div>
               </div>

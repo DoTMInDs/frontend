@@ -4,16 +4,22 @@ import { Dialog, Transition } from '@headlessui/react';
 const EditProfileModal = ({ open, onClose, user, onSave }) => {
   const [displayName, setDisplayName] = useState('');
   const [photoURL, setPhotoURL] = useState('');
+  const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
+  const [bio, setBio] = useState('');
 
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName || '');
       setPhotoURL(user.photoURL || '');
+      setPhone(user.phone || '');
+      setLocation(user.location || '');
+      setBio(user.bio || '');
     }
   }, [user, open]);
 
   const handleSave = () => {
-    onSave({ displayName, photoURL });
+    onSave({ displayName, photoURL, phone, location, bio });
     onClose();
   };
 
@@ -65,6 +71,38 @@ const EditProfileModal = ({ open, onClose, user, onSave }) => {
                       value={photoURL}
                       onChange={e => setPhotoURL(e.target.value)}
                       placeholder="Paste image URL (optional)"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number</label>
+                    <input
+                      id="phone"
+                      type="tel"
+                      className="w-full rounded border border-gray-300 p-2"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="location" className="block text-sm font-medium mb-1">Location</label>
+                    <input
+                      id="location"
+                      className="w-full rounded border border-gray-300 p-2"
+                      value={location}
+                      onChange={e => setLocation(e.target.value)}
+                      placeholder="Enter your location (city, state)"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="bio" className="block text-sm font-medium mb-1">Bio</label>
+                    <textarea
+                      id="bio"
+                      className="w-full rounded border border-gray-300 p-2"
+                      value={bio}
+                      onChange={e => setBio(e.target.value)}
+                      placeholder="Tell us about yourself..."
+                      rows={3}
                     />
                   </div>
                   <div className="flex justify-end gap-2 mt-4">

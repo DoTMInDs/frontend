@@ -119,9 +119,36 @@ class ApiService {
   }
 
   async deleteProduct(id) {
-    return this.request(`/products/${id}/`, {
+    const url = `${this.baseURL}/products/${id}/`;
+    
+    // Get auth token
+    const token = await this.getAuthToken();
+    
+    const config = {
       method: 'DELETE',
-    });
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+    };
+
+    try {
+      console.log('Making DELETE request to:', url);
+      const response = await fetch(url, config);
+      
+      console.log('Delete response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Delete Error Response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      
+      // DELETE requests typically don't return data, so we just check if it was successful
+      return { success: true };
+    } catch (error) {
+      console.error('Delete request failed:', error);
+      throw error;
+    }
   }
 
   // User/Seller API methods
@@ -131,6 +158,20 @@ class ApiService {
 
   async getCurrentUser() {
     return this.request('/users/me/');
+  }
+
+  async updateUserProfile(userData) {
+    return this.request('/users/me/', {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async createUserProfile(userData) {
+    return this.request('/users/', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
   }
 }
 

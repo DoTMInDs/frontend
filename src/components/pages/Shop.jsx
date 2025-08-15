@@ -151,7 +151,7 @@ const Shop = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="price" className="block text-sm font-medium mb-1">Price ($)</label>
+                        <label htmlFor="price" className="block text-sm font-medium mb-1">Price (₵)</label>
                         <input
                           id="price"
                           name="price"
@@ -227,7 +227,7 @@ const Shop = () => {
             />
             <div className="p-4 flex flex-col flex-grow">
               <h2 className="text-xl font-semibold text-green-700 dark:text-green-300 mb-2">{product.name}</h2>
-              <p className="text-lg text-gray-700 dark:text-gray-200 mb-2">${parseFloat(product.price).toFixed(2)}</p>
+              <p className="text-lg text-gray-700 dark:text-gray-200 mb-2">₵{parseFloat(product.price).toFixed(2)}</p>
               <p className="text-gray-600 dark:text-gray-400 mb-4 flex-grow">{product.description}</p>
               <button 
                 onClick={() => handleViewProduct(product)}
