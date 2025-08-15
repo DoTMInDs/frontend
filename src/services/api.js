@@ -123,6 +123,15 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // User/Seller API methods
+  async getUser(id) {
+    return this.request(`/users/${id}/`);
+  }
+
+  async getCurrentUser() {
+    return this.request('/users/me/');
+  }
 }
 
 export default new ApiService(); 

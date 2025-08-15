@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import apiService from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ProductDetailModal from '../product/ProductDetailModal';
 
 const Shop = () => {
   const { user } = useAuth();
@@ -10,6 +11,8 @@ const Shop = () => {
   const [error, setError] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [form, setForm] = useState({ name: '', price: '', image: '', description: '' });
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productDetailModalOpen, setProductDetailModalOpen] = useState(false);
 
   // Load products from API on mount
   useEffect(() => {
@@ -38,6 +41,16 @@ const Shop = () => {
   const handleCloseModal = () => {
     setOpenModal(false);
     setForm({ name: '', price: '', image: '', description: '' });
+  };
+
+  const handleViewProduct = (product) => {
+    setSelectedProduct(product);
+    setProductDetailModalOpen(true);
+  };
+
+  const handleCloseProductDetailModal = () => {
+    setProductDetailModalOpen(false);
+    setSelectedProduct(null);
   };
 
   const handleChange = (e) => {
@@ -216,7 +229,10 @@ const Shop = () => {
               <h2 className="text-xl font-semibold text-green-700 dark:text-green-300 mb-2">{product.name}</h2>
               <p className="text-lg text-gray-700 dark:text-gray-200 mb-2">${parseFloat(product.price).toFixed(2)}</p>
               <p className="text-gray-600 dark:text-gray-400 mb-4 flex-grow">{product.description}</p>
-              <button className="w-full px-4 py-2 bg-green-600 text-white font-medium rounded hover:bg-green-700 transition-colors">
+              <button 
+                onClick={() => handleViewProduct(product)}
+                className="w-full px-4 py-2 bg-green-600 text-white font-medium rounded hover:bg-green-700 transition-colors"
+              >
                 View
               </button>
             </div>
@@ -229,6 +245,13 @@ const Shop = () => {
           <p>No products available in the shop yet.</p>
         </div>
       )}
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        isOpen={productDetailModalOpen}
+        onClose={handleCloseProductDetailModal}
+        product={selectedProduct}
+      />
     </div>
   );
 };
