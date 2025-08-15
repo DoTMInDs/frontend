@@ -79,6 +79,12 @@ const Product = () => {
         price: form.price,
         description: form.description,
         image: imagePreview,
+        seller: user.uid,
+        seller_name: user.displayName || user.email,
+        seller_email: user.email,
+        seller_phone: user.phone || null,
+        seller_location: user.location || null,
+        seller_bio: user.bio || null,
       });
       
       setProducts(prev => [newProduct, ...prev]);

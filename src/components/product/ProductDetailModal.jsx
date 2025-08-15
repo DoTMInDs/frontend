@@ -1,8 +1,10 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import apiService from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const ProductDetailModal = ({ isOpen, onClose, product }) => {
+  const { user } = useAuth();
   const [sellerInfo, setSellerInfo] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -12,11 +14,53 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
     }
   }, [isOpen, product]);
 
+  // Load user profile data from localStorage when component mounts
+  useEffect(() => {
+    if (user && user.uid) {
+      const savedProfile = localStorage.getItem(`userProfile_${user.uid}`);
+      if (savedProfile) {
+        try {
+          const profileData = JSON.parse(savedProfile);
+          // Update user object with saved profile data
+          Object.assign(user, profileData);
+        } catch (error) {
+          console.error('Error parsing saved profile:', error);
+        }
+      }
+    }
+  }, [user]);
+
   const loadSellerInfo = async () => {
     if (!product) return;
     
+    // Debug: Log the product data to see what seller information is available
+    console.log('Product data for seller info:', {
+      seller: product.seller,
+      seller_name: product.seller_name,
+      seller_email: product.seller_email,
+      seller_phone: product.seller_phone,
+      seller_location: product.seller_location,
+      seller_bio: product.seller_bio,
+      created_by: product.created_by
+    });
+    
     try {
       setLoading(true);
+      
+      // First, try to use the seller information directly from the product
+      if (product.seller_name || product.seller_email) {
+        const sellerData = {
+          name: product.seller_name || product.created_by || 'Unknown Seller',
+          email: product.seller_email || 'No email available',
+          phone: product.seller_phone || null,
+          location: product.seller_location || product.location || 'Location not specified',
+          rating: product.seller_rating || 'No rating yet',
+          bio: product.seller_bio || null
+        };
+        console.log('Setting seller info from product data:', sellerData);
+        setSellerInfo(sellerData);
+        return;
+      }
       
       // Try to get seller information using the API service if seller ID exists
       if (product.seller) {
@@ -29,26 +73,50 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
         }
       }
       
-      // Fallback to product data or default values
-      setSellerInfo({
+      // Final fallback to product data or default values
+      const fallbackSellerInfo = {
         name: product.seller_name || product.created_by || product.seller_display_name || 'Unknown Seller',
         email: product.seller_email || product.seller_contact_email || 'No email available',
         phone: product.seller_phone || product.seller_contact_phone || null,
         location: product.seller_location || product.seller_address || product.location || 'Location not specified',
         rating: product.seller_rating || 'No rating yet',
         bio: product.seller_bio || null
-      });
+      };
+      
+      // If we still don't have good seller info, try to use current user's profile
+      if (fallbackSellerInfo.name === 'Unknown Seller' && user) {
+        fallbackSellerInfo.name = user.displayName || user.email || 'Unknown Seller';
+        fallbackSellerInfo.email = user.email || 'No email available';
+        fallbackSellerInfo.phone = user.phone || null;
+        fallbackSellerInfo.location = user.location || 'Location not specified';
+        fallbackSellerInfo.bio = user.bio || null;
+      }
+      
+      console.log('Setting fallback seller info:', fallbackSellerInfo);
+      setSellerInfo(fallbackSellerInfo);
     } catch (error) {
       console.error('Failed to load seller info:', error);
       // Set default seller info if everything fails
-      setSellerInfo({
+      const defaultSellerInfo = {
         name: 'Unknown Seller',
         email: 'No email available',
         phone: null,
         location: 'Location not specified',
         rating: 'No rating yet',
         bio: null
-      });
+      };
+      
+      // Try to use current user's info as a last resort
+      if (user) {
+        defaultSellerInfo.name = user.displayName || user.email || 'Unknown Seller';
+        defaultSellerInfo.email = user.email || 'No email available';
+        defaultSellerInfo.phone = user.phone || null;
+        defaultSellerInfo.location = user.location || 'Location not specified';
+        defaultSellerInfo.bio = user.bio || null;
+      }
+      
+      console.log('Setting default seller info:', defaultSellerInfo);
+      setSellerInfo(defaultSellerInfo);
     } finally {
       setLoading(false);
     }
@@ -188,11 +256,22 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                         )}
                       </div>
 
-                      {/* Seller Information */}
-                      <div className="border-t pt-4">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                          Seller Information
-                        </h4>
+                                             {/* Seller Information */}
+                       <div className="border-t pt-4">
+                         <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                           Seller Information
+                         </h4>
+                         
+                         {/* Debug Info - Remove this later */}
+                         {process.env.NODE_ENV === 'development' && (
+                           <div className="mb-3 p-2 bg-gray-100 dark:bg-gray-700 rounded text-xs">
+                             <p><strong>Debug:</strong> Product seller data:</p>
+                             <p>seller_name: {product.seller_name || 'null'}</p>
+                             <p>seller_email: {product.seller_email || 'null'}</p>
+                             <p>seller_phone: {product.seller_phone || 'null'}</p>
+                             <p>seller_location: {product.seller_location || 'null'}</p>
+                           </div>
+                         )}
                         
                         {loading ? (
                           <div className="flex items-center space-x-2">
